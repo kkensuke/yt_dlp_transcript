@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""
-YouTube Transcript to Markdown Converter using yt-dlp
-
-Alternative script using yt-dlp which is often more reliable for transcript extraction.
-Includes Gemini AI summarization.
-
-Requirements:
-    pip install yt-dlp
-
-Usage:
-    python yt_dlp_transcript.py "https://www.youtube.com/watch?v=VIDEO_ID"
-"""
-
 import os
 import sys
 import json
