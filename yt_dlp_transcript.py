@@ -14,25 +14,48 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 def extract_video_id(url):
-    """Extract video ID from various YouTube URL formats."""
-    if len(url) == 11 and re.match(r'^[a-zA-Z0-9_-]{11}$', url):
-        return url
-    
-    parsed_url = urlparse(url)
-    
-    if parsed_url.hostname in ['www.youtube.com', 'youtube.com']:
-        if parsed_url.path == '/watch':
-            return parse_qs(parsed_url.query).get('v', [None])[0]
-        elif parsed_url.path.startswith('/embed/'):
-            return parsed_url.path.split('/')[2]
-    elif parsed_url.hostname in ['youtu.be']:
-        return parsed_url.path[1:]
-    elif parsed_url.hostname in ['music.youtube.com']:
-        if 'watch' in parsed_url.path:
-            return parse_qs(parsed_url.query).get('v', [None])[0]
-    
-    return None
+    """
+    Extracts the YouTube video ID from a variety of URL formats.
+    Handles standard, shortened, embed, shorts, live, and music URLs,
+    as well as regional domains and mobile versions.
+    """
+    if not url:
+        return None
 
+    # Handle the case where the input is just the 11-character video ID
+    if re.match(r'^[a-zA-Z0-9_-]{11}$', url):
+        return url
+
+    # Prepend 'http://' if no scheme is present to help urlparse
+    if not re.match(r'http(s)?://', url):
+        url = 'http://' + url
+
+    parsed_url = urlparse(url)
+    hostname = parsed_url.hostname
+
+    # A regex to match youtube.com, youtu.be, and regional/mobile variations
+    # e.g., www.youtube.com, m.youtube.co.uk, music.youtube.com, youtu.be
+    if not hostname or not re.match(r'(?:www\.|m\.|music\.)?youtube\.co(m|\.uk|\.jp|\.de|.\w{2})|youtu\.be', hostname):
+        return None
+
+    # Case 1: Standard /watch url (e.g., youtube.com/watch?v=VIDEO_ID)
+    if parsed_url.path == '/watch':
+        query_params = parse_qs(parsed_url.query)
+        return query_params.get('v', [None])[0]
+
+    # Case 2: Shortened URL (e.g., youtu.be/VIDEO_ID)
+    if hostname == 'youtu.be':
+        # The ID is the first part of the path, ignore query params
+        return parsed_url.path.split('/')[1].split('?')[0]
+
+    # Case 3: Embed, Shorts, Live, or old /v/ urls
+    # (e.g., /embed/VIDEO_ID, /shorts/VIDEO_ID, /live/VIDEO_ID, /v/VIDEO_ID)
+    path_parts = parsed_url.path.split('/')
+    if len(path_parts) > 2 and path_parts[1] in ['embed', 'shorts', 'live', 'v']:
+        # The ID is the second part of the path, ignore query params
+        return path_parts[2].split('?')[0]
+
+    return None
 
 def format_timestamp(seconds):
     """Convert seconds to HH:MM:SS format."""
@@ -52,7 +75,7 @@ def detect_video_language(title, description=""):
     return 'en'  # Default to English
 
 
-def get_video_info_and_transcript(url):
+def get_video_info_and_transcript(video_id):
     """Get video info and transcript using yt-dlp."""
     
     ydl_opts = {
@@ -67,7 +90,7 @@ def get_video_info_and_transcript(url):
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             print("Extracting video information...")
-            info = ydl.extract_info(url, download=False)
+            info = ydl.extract_info(video_id, download=False)
             
             title = info.get('title', 'Unknown Title')
             video_id = info.get('id', 'Unknown ID')
@@ -420,7 +443,7 @@ def call_gemini_api(text, api_key, language='auto'):
         prompt = f"""この動画の文字起こしを構造化されたマークダウン形式で要約してください。以下を含めてください：
 
 1. **メインテーマ**: 動画の内容について簡潔な説明
-2. **重要なポイント**: 最も重要な情報を3-5個の箇条書きで
+2. **重要なポイント**: 最も重要な情報を最大10個の箇条書きで
 3. **詳細な要約**: 包括的な段落での要約
 4. **注目すべき引用** (もしあれば): 文字起こしからの重要または興味深い引用
 5. **結論・要点**: 主要な学びや結論
@@ -431,7 +454,7 @@ def call_gemini_api(text, api_key, language='auto'):
         prompt = f"""Please summarize this video transcript in a structured markdown format. Include:
 
 1. **Main Topic/Theme**: Brief description of what the video is about
-2. **Key Points**: 3-5 bullet points of the most important information
+2. **Key Points**: Most important information in up to 10 bullet points
 3. **Detailed Summary**: A comprehensive paragraph summary
 4. **Notable Quotes** (if any): Important or interesting quotes from the transcript
 5. **Conclusion/Takeaways**: Main lessons or conclusions
@@ -523,11 +546,11 @@ def main():
     # Extract video ID for filename if needed
     video_id = extract_video_id(args.url)
     if not video_id:
-        print("Warning: Could not extract video ID from URL")
-        video_id = "unknown"
+        print(f"Error: Could not extract a valid YouTube video ID from '{args.url}'")
+        sys.exit(1)
     
     # Get video info and transcript
-    video_info, transcript_data = get_video_info_and_transcript(args.url)
+    video_info, transcript_data = get_video_info_and_transcript(video_id)
     
     if not video_info:
         print("Failed to get video information")

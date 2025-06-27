@@ -38,27 +38,27 @@ A Python script that extracts transcripts from YouTube videos using `yt-dlp` and
 
 ```bash
 # Extract transcript from YouTube URL
-python yt_dlp_transcript.py "https://www.youtube.com/watch?v=VIDEO_ID"
+python yt_dlp_transcript.py 'https://www.youtube.com/watch?v=VIDEO_ID'
 
 # Or use just the video ID
-python yt_dlp_transcript.py "VIDEO_ID"
+python yt_dlp_transcript.py 'VIDEO_ID'
 ```
 
 ### Advanced Options
 
 ```bash
 # Remove timestamps from output
-python yt_dlp_transcript.py "VIDEO_URL" --no-timestamps
+python yt_dlp_transcript.py 'VIDEO_URL' --no-timestamps
 
 # Skip AI summary generation
-python yt_dlp_transcript.py "VIDEO_URL" --no-summary
+python yt_dlp_transcript.py 'VIDEO_URL' --no-summary
 
 # Specify summary language
-python yt_dlp_transcript.py "VIDEO_URL" --summary-lang ja  # Japanese
-python yt_dlp_transcript.py "VIDEO_URL" --summary-lang en  # English
+python yt_dlp_transcript.py 'VIDEO_URL' --summary-lang ja  # Japanese
+python yt_dlp_transcript.py 'VIDEO_URL' --summary-lang en  # English
 
 # Custom output filename
-python yt_dlp_transcript.py "VIDEO_URL" -o my_transcript.md
+python yt_dlp_transcript.py 'VIDEO_URL' -o my_transcript.md
 ```
 
 ## Output Files
@@ -119,17 +119,17 @@ The script automatically detects video language and:
 
 ### Extract English video transcript:
 ```bash
-python yt_dlp_transcript.py "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+python yt_dlp_transcript.py 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
 ```
 
 ### Extract Japanese video with English summary:
 ```bash
-python yt_dlp_transcript.py "https://www.youtube.com/watch?v=JAPANESE_VIDEO_ID" --summary-lang en
+python yt_dlp_transcript.py 'https://www.youtube.com/watch?v=JAPANESE_VIDEO_ID' --summary-lang en
 ```
 
 ### Clean transcript without timestamps:
 ```bash
-python yt_dlp_transcript.py "VIDEO_ID" --no-timestamps -o clean_transcript.md
+python yt_dlp_transcript.py 'VIDEO_ID' --no-timestamps -o clean_transcript.md
 ```
 
 ## Troubleshooting
