@@ -442,9 +442,12 @@ def call_gemini_api(text, api_key, language='auto'):
     if language == 'ja':
         # PROMPT FOR JAPANESE
         prompt = f"""
-        あなたは熟練したテクニカルライター兼アナリストです。あなたのタスクは、提供された動画の文字起こしを、非常に構造化された、明確でプロフェッショナルなマークダウン形式の要約ドキュメントに変換することです。
+        あなたは熟練したテクニカルライター兼アナリストです。あなたのタスクは、提供された動画の文字起こしを、読みやすく構造化され、かつ学術的に正確なマークダウン形式の要約ドキュメントに変換することです。。
         
-        元の文字起こしには誤字や変換ミスが含まれている可能性があります。文脈に注意を払い、これらの問題を克服してください（例：同音異義語を正しく解釈する）。
+        【前処理ルール】
+        - 文字起こしに同音異義語などの誤字・ASR誤認識があれば文脈で修正・削除して自然な日本語にしてください。ただし、**不確かな解釈箇所は[不確か]タグ**を付けて示してください。
+        - 専門用語は原語（英語）が存在する場合は原語を括弧で併記してください（例：経験的リスク（empirical risk））。
+        - 数式・アルゴリズムは可能な限りLaTeX形式で示してください（`$$...$$`）。
         
         **必ず以下の構成とマークダウン指定に厳密に従って、応答全体を作成してください：**
         
@@ -452,16 +455,16 @@ def call_gemini_api(text, api_key, language='auto'):
         動画の主題、目的、そして主要な発見についての簡潔な1段落の概要。
         
         ## 🔑 主要な概念とキーワード
-        動画で議論された最も重要なキーワード、概念、またはメカニズムを特定し、説明してください。以下の定義リスト形式で記述してください：
-        - **用語1:** 簡潔な説明。
-        - **用語2:** 簡潔な説明。
-        - ...
+        - **用語A:** 定義（原語を括弧）、重要度（高/中/低）、簡潔な説明。
+        - **用語B:** ...
         
-        ## ✨ 重要なハイライト (箇条書き)
-        動画から得られる最も重要なポイントや発見を5〜10個リストアップしてください。簡潔で読みやすい箇条書きで、各項目は完全な文章にしてください。
+        ## ✨ 重要ポイント (箇条書き)
+        動画から得られる重要なポイントや発見をいくつかリストアップしてください。簡潔で読みやすい箇条書きで、各項目は完全な文章にしてください。
         
         ## 📄 詳細な分析
-        ハイライトをさらに掘り下げた、複数段落からなる詳細な要約（400〜600字程度）を提供してください。動画で提示された主要なアイデアを結びつけ、その背景にある「どのように」や「なぜ」を説明してください。
+        動画で提示された主要なアイデアを論理的・構造的に結びつけ、「背景」「仕組み（how）」「理由（why）」「関連する例または直感的な説明」を分かりやすく高校生にもわかるように解説してください。分量は説明の難易度に応じて調整してください。
+        - 必要なら短い擬似コード、図式的の説明、または数式（LaTeX）を入れてください。
+        - 長くなる場合は小見出し（###）で区切る。
         
         ## 💬 注目すべき引用
         中心的なアイデアを捉えている、最も重要または影響力のある引用を2〜3個、文字起こしから抽出してください。マークダウンの引用符（>）を使用してフォーマットしてください。
@@ -478,37 +481,48 @@ def call_gemini_api(text, api_key, language='auto'):
     else:  # Default to English
         # PROMPT FOR ENGLISH
         prompt = f"""
-        You are an expert technical writer and analyst. Your task is to transform the provided raw video transcript into a highly structured, clear, and professional summary document in Markdown format.
+        You are a skilled technical writer and analyst. Your task is to transform the provided video transcript into a well-structured, readable, and academically accurate summary document in Markdown format.
         
-        The original transcript may contain typos or transcription errors. Pay close attention to the context to overcome these issues (e.g., interpreting homophones correctly).
+        ### Preprocessing Rules
+        * If there are typos, homophones, or ASR misrecognitions in the transcript, correct or remove them based on context to produce natural language. However, for **uncertain interpretations, mark them with the \[Uncertain] tag**.
+        * Represent mathematical formulas or algorithms in LaTeX format whenever possible (`$$...$$`).
         
-        **Please structure your entire response EXACTLY as follows, using the specified Markdown:**
+        **Strictly follow the structure and Markdown specifications below for your entire response:**
         
-        ## 📝 Executive Summary
-        A brief, one-paragraph overview of the video's main topic, purpose, and key findings.
+        ## 📝 Summary
         
-        ## 🔑 Key Concepts & Terminology
-        Identify and explain the most important keywords, concepts, or mechanisms discussed. Format this as a definition list:
-        - **Term 1:** A concise explanation.
-        - **Term 2:** A concise explanation.
-        - ...
+        A concise one-paragraph overview of the video’s topic, purpose, and key findings.
         
-        ## ✨ Key Highlights (Bulleted List)
-        List the top 5-10 most critical points or findings from the video. Write these as concise, easy-to-scan bullet points. Each point must be a complete sentence.
+        ## 🔑 Key Concepts and Keywords
         
-        ## 📄 In-Depth Analysis
-        Provide a more detailed, multi-paragraph summary (around 300-400 words) that elaborates on the key highlights. Explain the "how" and "why" behind the information, connecting the main ideas presented in the video.
+        * **Term A:** Definition, importance (high/medium/low), brief explanation.
+        * **Term B:** ...
+        
+        ## ✨ Key Points (Bulleted List)
+        
+        List several key takeaways or findings from the video in concise, easy-to-read bullet points. Each item should be a complete sentence.
+        
+        ## 📄 Detailed Analysis
+        
+        Logically and structurally connect the main ideas presented in the video, and explain them in a way that even high school students can understand by covering “background,” “how,” “why,” and “examples or intuitive explanations.” Adjust the length according to the complexity of the explanation.
+        
+        * Include short pseudocode, schematic explanations, or formulas (LaTeX) where necessary.
+        * If the section becomes long, divide it with subheadings (###).
         
         ## 💬 Notable Quotes
-        Extract 2-3 of the most significant or impactful quotes from the transcript that capture a core idea. Use Markdown blockquotes for formatting.
-        > "First impactful quote from the transcript..."
-        > "Second impactful quote from the transcript..."
         
-        ## 🚀 Actionable Takeaways & Conclusion
-        Conclude with the main takeaways. What should the viewer do, remember, or consider after watching this video? This can be a short paragraph or a few final bullet points.
+        Extract 2–3 of the most important or impactful quotes from the transcript that capture central ideas. Format them using Markdown blockquotes:
+        
+        > "Impactful Quote 1..."
+        > "Impactful Quote 2..."
+        
+        ## 🚀 Practical Lessons and Conclusion
+        
+        Conclude with the key lessons learned. What should the viewer do, remember, or consider after watching this video? This can be expressed in a short paragraph or as a final set of bullet points.
         
         ---
-        Here is the transcript to summarize:
+        
+        The transcript to summarize is as follows:
         {text}
         """
     
