@@ -471,6 +471,9 @@ def call_gemini_api(text, api_key, language='auto'):
         > "影響力のある引用1..."
         > "影響力のある引用2..."
         
+        ### 🧐 Critical Evaluation（批判的評価）
+        動画の議論における **不足点、見落とされた視点、弱い論点、明らかな誤り** を指摘してください。また、説明を強化するためにどのような要素が含まれるべきだったかを提案してください。
+        
         ## 🚀 実用的な学びと結論
         主要な学びで締めくくってください。この動画を視聴した後、視聴者は何をすべきか、何を記憶すべきか、または何を考慮すべきか。短い段落または最後のいくつかの箇条書きで記述できます。
         
@@ -490,34 +493,29 @@ def call_gemini_api(text, api_key, language='auto'):
         **Strictly follow the structure and Markdown specifications below for your entire response:**
         
         ## 📝 Summary
-        
         A concise one-paragraph overview of the video’s topic, purpose, and key findings.
         
         ## 🔑 Key Concepts and Keywords
-        
         * **Term A:** Definition, importance (high/medium/low), brief explanation.
         * **Term B:** ...
         
         ## ✨ Key Points (Bulleted List)
-        
         List several key takeaways or findings from the video in concise, easy-to-read bullet points. Each item should be a complete sentence.
         
         ## 📄 Detailed Analysis
-        
         Logically and structurally connect the main ideas presented in the video, and explain them in a way that even high school students can understand by covering “background,” “how,” “why,” and “examples or intuitive explanations.” Adjust the length according to the complexity of the explanation.
-        
         * Include short pseudocode, schematic explanations, or formulas (LaTeX) where necessary.
         * If the section becomes long, divide it with subheadings (###).
         
         ## 💬 Notable Quotes
-        
         Extract 2–3 of the most important or impactful quotes from the transcript that capture central ideas. Format them using Markdown blockquotes:
-        
         > "Impactful Quote 1..."
         > "Impactful Quote 2..."
         
-        ## 🚀 Practical Lessons and Conclusion
+        ## 🧐 Critical Evaluation
+        Point out any gaps, overlooked perspectives, weak arguments, or clear errors in the video’s discussion. Also, suggest what could have been included to strengthen the explanation.
         
+        ## 🚀 Practical Lessons and Conclusion
         Conclude with the key lessons learned. What should the viewer do, remember, or consider after watching this video? This can be expressed in a short paragraph or as a final set of bullet points.
         
         ---
