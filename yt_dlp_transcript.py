@@ -454,8 +454,8 @@ def call_gemini_api(text, api_key, language='auto'):
         ## 📝 要約
         動画の主題、目的、そして主要な発見についての簡潔な1段落の概要。
         
-        ## 🔑 主要な概念とキーワード
-        - **用語A:** 定義（原語を括弧）、重要度（高/中/低）、簡潔な説明。
+        ## 🔑 主要な概念とキーワード（原語も括弧で加える）
+        - **用語A:** 簡潔な説明、重要度（高/中/低）。
         - **用語B:** ...
         
         ## ✨ 重要ポイント (箇条書き)
@@ -496,7 +496,7 @@ def call_gemini_api(text, api_key, language='auto'):
         A concise one-paragraph overview of the video’s topic, purpose, and key findings.
         
         ## 🔑 Key Concepts and Keywords
-        * **Term A:** Definition, importance (high/medium/low), brief explanation.
+        * **Term A:** brief explanation, importance (high/medium/low).
         * **Term B:** ...
         
         ## ✨ Key Points (Bulleted List)
