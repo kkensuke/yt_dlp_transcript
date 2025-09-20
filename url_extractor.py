@@ -1,6 +1,7 @@
 import re
 from urllib.parse import urlparse, parse_qs
 
+
 def extract_video_id(url):
     """
     Extracts the YouTube video ID from a variety of URL formats.
@@ -45,40 +46,42 @@ def extract_video_id(url):
 
     return None
 
-# --- Example Usage ---
-urls_to_test = [
-    # Standard
-    'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    # Watch list
-    'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=WL&index=1',
-    # Just the ID
-    'dQw4w9WgXcQ',
-    # Shortened
-    'https://youtu.be/dQw4w9WgXcQ',
-    # Shortened with tracking
-    'https://youtu.be/dQw4w9WgXcQ?si=abcde12345',
-    # Embed
-    'https://www.youtube.com/embed/dQw4w9WgXcQ',
-    # Music
-    'https://music.youtube.com/watch?v=dQw4w9WgXcQ&list=...',
-    # Mobile
-    'https://m.youtube.com/watch?v=dQw4w9WgXcQ',
-    # International
-    'https://www.youtube.co.uk/watch?v=dQw4w9WgXcQ',
-    # No scheme
-    'youtube.com/watch?v=dQw4w9WgXcQ',
-    # Old embed format
-    'https://www.youtube.com/v/dQw4w9WgXcQ',
-    # Shorts
-    'https://www.youtube.com/shorts/o-YBDTqX_ZU',
-    # Live
-    'https://www.youtube.com/live/some_live_id?feature=share',
-    # Invalid URLs
-    'https://www.google.com',
-    'not a url',
-    'https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw',
-]
 
-for url in urls_to_test:
-    video_id = extract_video_id(url)
-    print(f"URL: {url:<65} -> ID: {video_id}")
+# --- Example ---
+if __name__ == "__main__":
+    urls_to_test = [
+        # Standard
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        # Watch list
+        'https://www.youtube.com/watch?v=dQw4w9WgXcQ&list=WL&index=1',
+        # Just the ID
+        'dQw4w9WgXcQ',
+        # Shortened
+        'https://youtu.be/dQw4w9WgXcQ',
+        # Shortened with tracking
+        'https://youtu.be/dQw4w9WgXcQ?si=abcde12345',
+        # Embed
+        'https://www.youtube.com/embed/dQw4w9WgXcQ',
+        # Music
+        'https://music.youtube.com/watch?v=dQw4w9WgXcQ&list=...',
+        # Mobile
+        'https://m.youtube.com/watch?v=dQw4w9WgXcQ',
+        # International
+        'https://www.youtube.co.uk/watch?v=dQw4w9WgXcQ',
+        # No scheme
+        'youtube.com/watch?v=dQw4w9WgXcQ',
+        # Old embed format
+        'https://www.youtube.com/v/dQw4w9WgXcQ',
+        # Shorts
+        'https://www.youtube.com/shorts/o-YBDTqX_ZU',
+        # Live
+        'https://www.youtube.com/live/some_live_id?feature=share',
+        # Invalid URLs
+        'https://www.google.com',
+        'not a url',
+        'https://www.youtube.com/channel/UC-lHJZR3Gqxm24_Vd_AJ5Yw',
+    ]
+
+    for url in urls_to_test:
+        video_id = extract_video_id(url)
+        print(f"URL: {url:<65} -> ID: {video_id}")

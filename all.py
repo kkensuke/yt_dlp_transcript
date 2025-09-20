@@ -10,6 +10,9 @@ from urllib.parse import urlparse, parse_qs
 # ===== CONFIGURATION =====
 # Add your Gemini API key here
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+
+MAX_SUMMARY_LENGTH = 50000  # Max characters for summary input
 # =========================
 
 
@@ -571,7 +574,7 @@ def call_gemini_api(text, api_key, language='auto'):
         return None
 
 
-def create_summary_markdown(summary, video_info):
+def create_summary_markdown(video_info, summary):
     """Create a markdown file with the Gemini-generated summary."""
     title = video_info.get('title', 'Unknown Title')
     video_id = video_info.get('id', 'Unknown ID')
@@ -652,32 +655,20 @@ def main():
     if GEMINI_API_KEY and GEMINI_API_KEY != "YOUR_GEMINI_API_KEY_HERE" and not args.no_summary:
         print("\nGenerating summary...")
         
-        # Create plain text version for summarization
-        plain_text = ""
-        for entry in transcript:
-            text = entry['text'].strip()
-            if text:
-                # Clean Japanese text if needed
-                if detect_video_language(video_info.get('title', '')) == 'ja':
-                    text = clean_japanese_text(text)
-                plain_text += text + " "
-        
         # Limit text length for API (Gemini has token limits)
-        max_chars = 50000  # Conservative limit
-        if len(plain_text) > max_chars:
-            plain_text = plain_text[:max_chars] + "... [transcript truncated for summarization]"
-            print(f"Transcript truncated to {max_chars} characters for summarization")
+        if len(markdown) > MAX_SUMMARY_LENGTH:
+            markdown = markdown[:MAX_SUMMARY_LENGTH] + "... [transcript truncated for summarization]"
+            print(f"Transcript truncated to {MAX_SUMMARY_LENGTH} characters for summarization")
         
         # Call Gemini API with language preference
-        summary = call_gemini_api(plain_text, GEMINI_API_KEY, args.summary_lang)
-        
+        summary = call_gemini_api(markdown, GEMINI_API_KEY, args.summary_lang)
+
         if summary:
             # Create summary markdown
-            summary_markdown = create_summary_markdown(summary, video_info)
+            summary_markdown = create_summary_markdown(video_info, summary)
             
             # Save summary to file
-            base_name = output_file.rsplit('.', 1)[0]  # Remove .md extension
-            summary_file = f"{base_name}_summarized.md"
+            summary_file = f"{video_id}_summarized.md"
             
             try:
                 with open(summary_file, 'w', encoding='utf-8') as f:
