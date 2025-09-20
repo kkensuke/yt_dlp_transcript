@@ -80,7 +80,7 @@ The script generates up to two files:
 ```
 
 ### Limitations
-- Transcripts longer than 50,000 characters are truncated for summarization by default. This limit can be adjusted in `transcript_processor.py` using the `MAX_SUMMARY_LENGTH` variable.
+- Transcripts longer than 50,000 characters are truncated for summarization by default. This limit can be adjusted in `main.py` using the `MAX_SUMMARY_LENGTH` variable.
 
 
 ## Command Line Options
