@@ -9,7 +9,7 @@ from transcript_processor import get_video_info_and_transcript, download_and_par
 
 # ===== CONFIGURATION =====
 # Add your Gemini API key here
-GEMINI_API_KEY = os.getenv("YOUR_GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 
 MAX_SUMMARY_LENGTH = 50000  # Max characters for summary input

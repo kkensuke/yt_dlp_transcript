@@ -9,7 +9,7 @@ from urllib.parse import urlparse, parse_qs
 
 # ===== CONFIGURATION =====
 # Add your Gemini API key here
-GEMINI_API_KEY = os.getenv("YOUR_GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 
 MAX_SUMMARY_LENGTH = 50000  # Max characters for summary input
