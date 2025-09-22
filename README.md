@@ -24,7 +24,7 @@ A Python script that extracts transcripts from YouTube videos using `yt-dlp` and
    - Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/)
    - Set the environment variable:
      ```bash
-     export GEMINI_API_KEY="your_api_key_here"
+     export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
      ```
    - Or edit the script and add your key to `GEMINI_API_KEY` in `main.py`.
 

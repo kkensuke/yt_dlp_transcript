@@ -9,7 +9,7 @@ from urllib.parse import urlparse, parse_qs
 
 # ===== CONFIGURATION =====
 # Add your Gemini API key here
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("YOUR_GEMINI_API_KEY")
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
 
 MAX_SUMMARY_LENGTH = 50000  # Max characters for summary input
@@ -652,7 +652,7 @@ def main():
         return
     
     # Generate summary if API key is configured and not disabled
-    if GEMINI_API_KEY and GEMINI_API_KEY != "YOUR_GEMINI_API_KEY_HERE" and not args.no_summary:
+    if GEMINI_API_KEY and GEMINI_API_KEY != "YOUR_GEMINI_API_KEY" and not args.no_summary:
         print("\nGenerating summary...")
         
         # Limit text length for API (Gemini has token limits)
@@ -682,7 +682,7 @@ def main():
             print("Failed to generate summary")
     elif args.no_summary:
         print("Summary generation skipped (--no-summary flag used)")
-    elif not GEMINI_API_KEY or GEMINI_API_KEY == "YOUR_GEMINI_API_KEY_HERE":
+    elif not GEMINI_API_KEY or GEMINI_API_KEY == "YOUR_GEMINI_API_KEY":
         print("No Gemini API key configured. Set GEMINI_API_KEY in the script to enable summarization.")
     else:
         print("Summarization disabled")
