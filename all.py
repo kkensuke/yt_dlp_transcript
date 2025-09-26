@@ -490,7 +490,7 @@ def call_gemini_api(text, api_key, language='auto'):
         You are a skilled technical writer and analyst. Your task is to transform the provided video transcript into a well-structured, readable, and academically accurate summary document in Markdown format.
         
         ### Preprocessing Rules
-        * If there are typos, homophones, or ASR misrecognitions in the transcript, correct or remove them based on context to produce natural language. However, for **uncertain interpretations, mark them with the \[Uncertain] tag**.
+        * If there are typos, homophones, or ASR misrecognitions in the transcript, correct or remove them based on context to produce natural language. However, for **uncertain interpretations, mark them with the [Uncertain] tag**.
         * Represent mathematical formulas or algorithms in LaTeX format whenever possible (`$$...$$`).
         
         **Strictly follow the structure and Markdown specifications below for your entire response:**
