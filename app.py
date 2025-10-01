@@ -18,6 +18,9 @@ MAX_SUMMARY_LENGTH = 50000  # Maximum characters to send for summary
 JOB_CLEANUP_INTERVAL = 300  # Cleanup every 5 minutes
 JOB_RETENTION_TIME = 1000  # Keep jobs for 1000 seconds
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
+
 
 # Store job status in memory (use Redis in production)
 jobs = {}
@@ -563,12 +566,11 @@ async def process_transcript(job_id: str, request: TranscriptRequest):
         }
         
         if request.generate_summary:
-            api_key = os.getenv("GEMINI_API_KEY")
-            if api_key:
+            if GEMINI_API_KEY and GEMINI_API_KEY != "YOUR_GEMINI_API_KEY":
                 jobs[job_id].progress = "Generating AI summary..."
                 
                 text_to_summarize = markdown[:MAX_SUMMARY_LENGTH]
-                summary = call_gemini_api(text_to_summarize, api_key, request.summary_lang)
+                summary = call_gemini_api(text_to_summarize, GEMINI_API_KEY, request.summary_lang)
                 
                 if summary:
                     result["summary"] = create_summary_markdown(video_info, summary)
