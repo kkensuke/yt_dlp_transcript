@@ -240,7 +240,7 @@ async def home():
                 
                 <div id="progress" class="mt-6 hidden">
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded animate-fade-in">
-                        <p class="text-sm text-blue-700" id="progressText">Processing...</p>
+                        <p class="text-sm text-blue-700" id="progressText">Initializing...</p>
                     </div>
                 </div>
                 
@@ -436,8 +436,6 @@ async def home():
                         // Render full transcript
                         document.getElementById('transcriptDisplay').innerHTML = marked.parse(transcriptData);
                         
-                        // Switch to transcript tab by default
-                        
                         if (data.result.summary) {
                             summaryData = data.result.summary;
                             document.getElementById('summaryTab').classList.remove('hidden');
@@ -566,7 +564,7 @@ async def process_transcript(job_id: str, request: TranscriptRequest):
         
         if request.generate_summary:
             api_key = os.getenv("GEMINI_API_KEY")
-            if api_key and api_key != "YOUR_GEMINI_API_KEY":
+            if api_key:
                 jobs[job_id].progress = "Generating AI summary..."
                 
                 text_to_summarize = markdown[:MAX_SUMMARY_LENGTH]
