@@ -2,14 +2,22 @@ from fastapi import FastAPI, BackgroundTasks, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
+from contextlib import asynccontextmanager
 import os
+import time
+import asyncio
 
 # Import your existing functions
 from url_extractor import extract_video_id
 from transcript_processor import get_video_info_and_transcript, download_and_parse_transcript, transcript_to_markdown
 from gemini_api import call_gemini_api, create_summary_markdown
 
-app = FastAPI(title="YouTube Transcript Extractor")
+
+# Configuration constants
+MAX_SUMMARY_LENGTH = 50000  # Maximum characters to send for summary
+JOB_CLEANUP_INTERVAL = 300  # Cleanup every 5 minutes
+JOB_RETENTION_TIME = 1000  # Keep jobs for 1000 seconds
+
 
 # Store job status in memory (use Redis in production)
 jobs = {}
@@ -25,10 +33,44 @@ class JobStatus(BaseModel):
     progress: str
     result: Optional[dict] = None
     error: Optional[str] = None
+    created_at: float = time.time()
+
+async def cleanup_old_jobs():
+    """Periodically remove old completed jobs to prevent memory leak"""
+    while True:
+        await asyncio.sleep(JOB_CLEANUP_INTERVAL)
+        cutoff = time.time() - JOB_RETENTION_TIME
+        to_remove = [
+            job_id for job_id, job in jobs.items() 
+            if job.created_at < cutoff
+        ]
+        for job_id in to_remove:
+            del jobs[job_id]
+        if to_remove:
+            print(f"🧹 Cleaned up {len(to_remove)} old jobs")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan event handler for startup and shutdown"""
+    # Startup: Start the cleanup task
+    cleanup_task = asyncio.create_task(cleanup_old_jobs())
+    print("✅ Background cleanup task started")
+    
+    yield  # Application runs here
+    
+    # Shutdown: Cancel the cleanup task
+    cleanup_task.cancel()
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        print("🛑 Background cleanup task stopped")
+
+
+app = FastAPI(title="YouTube Transcript Extractor", lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def home():
-    return """
+    return r"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -176,7 +218,7 @@ async def home():
                             <span class="text-sm text-gray-700">Include timestamps</span>
                         </label>
                         <label class="flex items-center cursor-pointer">
-                            <input type="checkbox" id="summary" unchecked class="mr-2 w-4 h-4 text-purple-600 rounded cursor-pointer">
+                            <input type="checkbox" id="summary" class="mr-2 w-4 h-4 text-purple-600 rounded cursor-pointer">
                             <span class="text-sm text-gray-700">Generate AI summary</span>
                         </label>
                     </div>
@@ -230,11 +272,11 @@ async def home():
                                         <p class="text-sm text-gray-500" id="transcriptMeta"></p>
                                     </div>
                                     <div class="flex gap-2 flex-wrap">
-                                        <button onclick="copyTranscript()" 
+                                        <button onclick="copyToClipboard(transcriptData, 'Transcript')"
                                                 class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
                                             📋 Copy
                                         </button>
-                                        <button onclick="downloadTranscript()" 
+                                        <button onclick="download(transcriptData, 'transcript')"
                                                 class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm">
                                             ⬇️ Download
                                         </button>
@@ -253,11 +295,11 @@ async def home():
                                         <p class="text-sm text-gray-500">Generated with Gemini AI</p>
                                     </div>
                                     <div class="flex gap-2 flex-wrap">
-                                        <button onclick="copySummary()" 
+                                        <button onclick="copyToClipboard(summaryData, 'Summary')"
                                                 class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition text-sm">
                                             📋 Copy
                                         </button>
-                                        <button onclick="downloadSummary()" 
+                                        <button onclick="download(summaryData, 'summary')"
                                                 class="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm">
                                             ⬇️ Download
                                         </button>
@@ -333,7 +375,7 @@ async def home():
                 // Reset UI state
                 document.getElementById('result').classList.add('hidden');
                 document.getElementById('progress').classList.remove('hidden');
-                document.getElementById('progressText').textContent = 'Starting...';
+                document.getElementById('progressText').textContent = 'Processing...';
                 
                 // Clear previous data
                 transcriptData = null;
@@ -343,7 +385,6 @@ async def home():
                 
                 // Reset tabs
                 document.getElementById('summaryTab').classList.add('hidden');
-                switchTab('transcript');
                 
                 try {
                     const response = await fetch('/api/extract', {
@@ -396,7 +437,6 @@ async def home():
                         document.getElementById('transcriptDisplay').innerHTML = marked.parse(transcriptData);
                         
                         // Switch to transcript tab by default
-                        switchTab('transcript');
                         
                         if (data.result.summary) {
                             summaryData = data.result.summary;
@@ -409,7 +449,7 @@ async def home():
                         document.getElementById('progress').classList.add('hidden');
                         showToast('Error: ' + data.error, 'error');
                     } else {
-                        setTimeout(pollStatus, 1000);
+                        setTimeout(pollStatus, 1000); // Poll interval
                     }
                 } catch (error) {
                     document.getElementById('progress').classList.add('hidden');
@@ -417,35 +457,21 @@ async def home():
                 }
             }
             
-            // Copy functions
-            async function copyTranscript() {
-                if (!transcriptData) {
-                    showToast('No transcript data available', 'error');
+            // Copy function
+            async function copyToClipboard(data, name) {
+                if (!data) {
+                    showToast(`No ${name.toLowerCase()} available`, 'error');
                     return;
                 }
                 try {
-                    await navigator.clipboard.writeText(transcriptData);
-                    showToast('Transcript copied to clipboard!', 'success');
+                    await navigator.clipboard.writeText(data);
+                    showToast(`${name} copied to clipboard!`, 'success');
                 } catch (error) {
                     console.error('Copy failed:', error);
                     showToast('Failed to copy: ' + error.message, 'error');
                 }
             }
-            
-            async function copySummary() {
-                if (!summaryData) {
-                    showToast('No summary data available', 'error');
-                    return;
-                }
-                try {
-                    await navigator.clipboard.writeText(summaryData);
-                    showToast('Summary copied to clipboard!', 'success');
-                } catch (error) {
-                    console.error('Copy failed:', error);
-                    showToast('Failed to copy: ' + error.message, 'error');
-                }
-            }
-            
+
             // Toast notification
             function showToast(message, type = 'info') {
                 const colors = {
@@ -466,18 +492,13 @@ async def home():
                 }, 3000);
             }
             
-            // Download functions
-            function downloadTranscript() {
-                const filename = `${videoId}_transcript.md`;
-                downloadFile(transcriptData, filename);
-            }
-            
-            function downloadSummary() {
-                const filename = `${videoId}_summary.md`;
-                downloadFile(summaryData, filename);
-            }
-            
-            function downloadFile(content, filename) {
+            // Download function
+            function download(content, suffix) {
+                if (!content || !videoId) {
+                    showToast('No data available to download', 'error');
+                    return;
+                }
+                const filename = `${videoId}_${suffix}.md`;
                 const blob = new Blob([content], { type: 'text/markdown' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -487,9 +508,8 @@ async def home():
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                showToast(`Downloaded ${filename}`, 'success');
             }
-            
+
             // Allow Enter key to submit
             document.getElementById('videoUrl').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -549,7 +569,7 @@ async def process_transcript(job_id: str, request: TranscriptRequest):
             if api_key and api_key != "YOUR_GEMINI_API_KEY":
                 jobs[job_id].progress = "Generating AI summary..."
                 
-                text_to_summarize = markdown[:50000]
+                text_to_summarize = markdown[:MAX_SUMMARY_LENGTH]
                 summary = call_gemini_api(text_to_summarize, api_key, request.summary_lang)
                 
                 if summary:
@@ -574,7 +594,12 @@ async def get_status(job_id: str):
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    active_jobs = len([j for j in jobs.values() if j.status == "processing"])
+    return {
+        "status": "healthy",
+        "active_jobs": active_jobs,
+        "total_jobs": len(jobs)
+    }
 
 if __name__ == "__main__":
     import uvicorn
