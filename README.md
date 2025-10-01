@@ -42,6 +42,9 @@ python app.py
 ```
 Then open your browser and go to `http://localhost:8000` to use the web interface.
 
+![](screenshot.png)
+
+
 ## Usage
 ### Basic Usage
 ```bash
