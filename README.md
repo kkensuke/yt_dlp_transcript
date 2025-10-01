@@ -3,13 +3,11 @@
 A Python script that extracts transcripts from YouTube videos using `yt-dlp` and converts them to clean, readable Markdown format. Includes optional AI-powered summarization using Google's Gemini API.
 
 ## Features
+- 🔗 **Robust YouTube URL handling** various URL formats and video IDs
 - 🎥 **Reliable transcript extraction** using yt-dlp
 - 📝 **Clean Markdown output** with optional timestamps
 - 🤖 **AI summarization** powered by Gemini API
 - 🌐 **Multi-language support** (optimized for English and Japanese)
-- 🎯 **Smart language detection** and text cleaning
-- 📊 **Multiple transcript formats** (JSON3, VTT, SRV1)
-- 🔧 **Flexible output options**
 
 
 ## Installation
@@ -22,6 +20,10 @@ A Python script that extracts transcripts from YouTube videos using `yt-dlp` and
    ```
 
 2. **Download the script:**
+   ```bash
+   git clone https://github.com/kkensuke/yt_dlp_transcript
+   cd yt_dlp_transcript
+   ```
 
 3. **Optional - Set up Gemini API (for summaries):**
    - Get a Gemini API key from [Google AI Studio](https://makersuite.google.com/)
@@ -46,7 +48,15 @@ Then open your browser and go to `http://localhost:8000` to use the web interfac
 
 
 ## Usage
-### Basic Usage
+### Usage of GUI
+1. Run the FastAPI app:
+   ```bash
+   python app.py
+   ```
+2. Open your browser and go to `http://localhost:8000`
+3. Enter the YouTube URL or video ID and click "Extract Transcript". About 10-20 seconds later, the transcript and summary (if enabled) will be displayed.
+
+### Basic Usage of CUI
 ```bash
 # Extract transcript from YouTube URL
 python main.py 'https://www.youtube.com/watch?v=VIDEO_ID'
@@ -54,6 +64,11 @@ python main.py 'https://www.youtube.com/watch?v=VIDEO_ID'
 # Or use just the video ID
 python main.py 'VIDEO_ID'
 ```
+
+The script generates up to two files:
+1. **`{video_id}_transcript.md`** - Full transcript with timestamps
+2. **`{video_id}_summarized.md`** - AI-generated summary (if Gemini API is configured)
+
 
 ### Advanced Options
 ```bash
@@ -72,12 +87,7 @@ python main.py 'VIDEO_URL' -o my_transcript.md
 ```
 
 
-## Output Files
-The script generates up to two files:
-1. **`{video_id}_transcript.md`** - Full transcript with timestamps
-2. **`{video_id}_summarized.md`** - AI-generated summary (if Gemini API is configured)
-
-### Sample Output Structure
+## Sample Output Structure
 ```markdown
 # Video Title
 
@@ -91,8 +101,7 @@ The script generates up to two files:
 **[00:01:30]** In this section, we'll cover the basics of variables...
 ```
 
-### Limitations
-- Transcripts longer than 50,000 characters are truncated for summarization by default. This limit can be adjusted in `main.py` using the `MAX_SUMMARY_LENGTH` variable.
+Transcripts longer than 50,000 characters are truncated for summarization by default. This limit can be adjusted in `main.py`,`all.py`, and `app.py` by changing the `MAX_SUMMARY_LENGTH` variable.
 
 
 ## Command Line Options
@@ -105,23 +114,12 @@ The script generates up to two files:
 | `--summary-lang` | Summary language: `auto`, `en`, `ja` |
 
 
-## Configuration
-### Environment Variables
-- `GEMINI_API_KEY` - Your Gemini API key for summarization
-
-### Supported Video Sources
-- YouTube videos with available transcripts
-- Videos with manual subtitles (preferred)
-- Videos with auto-generated captions
-- Multiple language support
-
-
 ## Language Support
 The script automatically detects video language and:
 - **Japanese videos**: Removes music tags, cleans spacing between characters
 - **English videos**: Standard text cleaning and formatting
 - **Auto-detection**: Based on title and description content
-- **Summary language**: Can be forced to specific language regardless of video language
+- **Summary language**: Set to English by default, or Japanese for Japanese videos
 
 
 ## Examples
@@ -150,22 +148,13 @@ python main.py 'VIDEO_ID' --no-timestamps -o clean_transcript.md
 2. **Gemini API errors**
    - Check your API key is valid
    - Ensure you have quota remaining
-   - Very long videos may hit token limits
 
 3. **yt-dlp extraction fails**
    - Update yt-dlp: `pip install -U yt-dlp`
-   - Some videos may be region-restricted
+   - Exceed rate limits on YouTube. Try next day.
 
 ### Browser Cookies
 The script uses Chrome browser cookies for better access. Ensure Chrome is installed for optimal results.
-
-
-## Requirements
-- Python 3.6+
-- yt-dlp
-- Internet connection
-- Chrome browser (for cookie support)
-- Gemini API key (optional, for summaries)
 
 
 ## License
