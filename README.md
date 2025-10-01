@@ -16,6 +16,9 @@ A Python script that extracts transcripts from YouTube videos using `yt-dlp` and
 1. **Install Python dependencies:**
    ```bash
    pip install yt-dlp
+   
+   # Optional: FastAPI
+   pip install fastapi uvicorn
    ```
 
 2. **Download the script:**
@@ -26,12 +29,18 @@ A Python script that extracts transcripts from YouTube videos using `yt-dlp` and
      ```bash
      export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
      ```
-   - Or edit the script and add your key to `GEMINI_API_KEY` in `main.py`.
+   - Or edit the script and add your key to `GEMINI_API_KEY` in `main.py`,`all.py`,`app.py`.
 
 
 ## About `all.py`
 `all.py` is a single file that just combines all the project files together. You can use either `main.py` or `all.py` to run the script.
 
+## About `app.py`
+`app.py` is a simple FastAPI web app that provides a web interface for the transcript extraction and summarization functionality. You can run it with:
+```bash
+python app.py
+```
+Then open your browser and go to `http://localhost:8000` to use the web interface.
 
 ## Usage
 ### Basic Usage
