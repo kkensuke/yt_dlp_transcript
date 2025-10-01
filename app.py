@@ -16,7 +16,7 @@ from gemini_api import call_gemini_api, create_summary_markdown
 # Configuration constants
 MAX_SUMMARY_LENGTH = 50000  # Maximum characters to send for summary
 JOB_CLEANUP_INTERVAL = 300  # Cleanup every 5 minutes
-JOB_RETENTION_TIME = 1000  # Keep jobs for 1000 seconds
+JOB_RETENTION_TIME = 1800  # Keep jobs for 1800 seconds
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
@@ -450,7 +450,7 @@ async def home():
                         document.getElementById('progress').classList.add('hidden');
                         showToast('Error: ' + data.error, 'error');
                     } else {
-                        setTimeout(pollStatus, 1000); // Poll interval
+                        setTimeout(pollStatus, 500); // Poll interval
                     }
                 } catch (error) {
                     document.getElementById('progress').classList.add('hidden');
@@ -531,7 +531,7 @@ async def extract_transcript(request: TranscriptRequest, background_tasks: Backg
     
     return {"job_id": job_id}
 
-async def process_transcript(job_id: str, request: TranscriptRequest):
+def process_transcript(job_id: str, request: TranscriptRequest):
     try:
         jobs[job_id].status = "processing"
         jobs[job_id].progress = "Extracting video ID..."
