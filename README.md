@@ -1,4 +1,4 @@
-# YouTube Transcript to Markdown Converter
+# YouTube Transcript Extractor with Gemini Summarization
 
 A Python script that extracts transcripts from YouTube videos using `yt-dlp` and converts them to clean, readable Markdown format. Includes optional AI-powered summarization using Google's Gemini API.
 
