@@ -96,9 +96,9 @@ In Windows PowerShell, environment variables use PowerShell syntax. For example:
 
 ```powershell
 $env:GEMINI_API_KEY = "YOUR_GEMINI_API_KEY"
-$env:GEMINI_MODEL = "gemini-flash-lite-latest"  # Optional
-$env:YTTEXT_SUMMARY_LANG = "ja"                 # Optional
-$env:YTTEXT_TRANSCRIPT_FORMAT = "md"            # Optional
+$env:GEMINI_MODEL = "gemini-flash-lite"    # Optional
+$env:YTTEXT_SUMMARY_LANG = "ja"            # Optional
+$env:YTTEXT_TRANSCRIPT_FORMAT = "md"       # Optional
 uv run yttext "YOUTUBE_URL"
 ```
 
@@ -122,9 +122,9 @@ When the app runs locally, it can use `GEMINI_API_KEY` as a fallback and `GEMINI
 
 ```bash
 export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
-export GEMINI_MODEL="gemini-flash-lite-latest"    # Optional
-export YTTEXT_SUMMARY_LANG="ja"                   # Optional
-export YTTEXT_TRANSCRIPT_FORMAT="md"              # Optional
+export GEMINI_MODEL="gemini-flash-lite"    # Optional (default: `gemini-flash-lite-latest`)
+export YTTEXT_SUMMARY_LANG="ja"            # Optional (default: `auto`)
+export YTTEXT_TRANSCRIPT_FORMAT="txt"      # Optional (default: `md`)
 yttext web
 ```
 
@@ -141,8 +141,9 @@ The CLI reads `GEMINI_API_KEY`, optional `GEMINI_MODEL`, optional `YTTEXT_SUMMAR
 ```bash
 # Transcript and summary
 export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
-export YTTEXT_SUMMARY_LANG="ja"         # Optional default for summaries
-export YTTEXT_TRANSCRIPT_FORMAT="md"    # Optional default transcript format
+export GEMINI_MODEL="gemini-flash-lite"    # Optional (default: `gemini-flash-lite-latest`)
+export YTTEXT_SUMMARY_LANG="ja"            # Optional (default: `auto`)
+export YTTEXT_TRANSCRIPT_FORMAT="md"       # Optional (default: `md`)
 yttext "YOUTUBE_URL"
 # or yttext "VIDEO_ID"
 
